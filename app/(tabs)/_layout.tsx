@@ -1,12 +1,18 @@
-import { Tabs } from 'expo-router';
+import { Redirect, Tabs } from 'expo-router';
 import React from 'react';
 
 import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { useUserStore } from '@/statemanagement/user';
 
 export default function TabLayout() {
+  const user = useUserStore((state) => state);
   const colorScheme = useColorScheme();
+
+  if (!user.id) {
+    return <Redirect href="/login" />;
+  }
 
   return (
     <Tabs
