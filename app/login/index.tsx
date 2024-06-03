@@ -26,82 +26,49 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView
-      style={{ flex: 1, backgroundColor: "white" }}
+      className=" flex-1 bg-white"
       edges={["right", "bottom", "left"]}
     >
-      <View
-        style={{
-          flex: 1,
-          alignItems: "center",
-          alignContent: "flex-end",
-          alignSelf: "stretch",
-          backgroundColor: "lime",
-        }}
-      >
-        <View style={{ marginTop: "auto" }}>
+      <View className="flex-1 bg-lime-400 items-center content-end self-stretch">
+        <View className=" mt-auto">
           <Image
             source={require("@/assets/images/coriander.png")}
-            style={{ height: 100, width: 100, marginBottom: 20 }}
+            className=" h-[100px] w-[100px] mb-4"
           />
         </View>
         <Animated.View
+          className=" w-full bg-white rounded-t-3xl"
           style={{
             height,
-            width: "100%",
-            backgroundColor: "white",
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
           }}
         >
-          <View
-            style={{
-              margin: "auto",
-              alignItems: "center",
-            }}
-          >
-            <H2>
-              Welcome to{" "}
-              <H2 color="darkgreen" fontWeight="bold">
-                Cilantro!
+          <View className="m-auto items-center">
+            {expanded ? (
+              <H2 className="m-4 transition">Login with:</H2>
+            ) : (
+              <H2 className="m-4 transition">
+                Welcome to{" "}
+                <H2 color="darkgreen" fontWeight="bold">
+                  Cilantro!
+                </H2>
               </H2>
-            </H2>
+            )}
             {expanded ? (
               <Pressable
                 onPress={handleLoginWithGoogle}
-                style={{
-                  height: 70,
-                  width: "80%",
-                  paddingVertical: 10,
-                  paddingHorizontal: 32,
-                  borderRadius: 20,
-                  elevation: 3,
-                  backgroundColor: "black",
-                  justifyContent: "center",
-                }}
+                className=" h-20 w-20 bg-slate-100 shadow-sm drop-shadow-md rounded-3xl px-3 py-3 items-center justify-center transition"
               >
-                <H3 color="white" style={{ justifyContent: "space-between" }}>
-                  <FontAwesome
-                    name="google"
-                    size={22}
-                    color="white"
-                    style={{ margin: 10 }}
-                  />
-                  Login with Google
-                </H3>
+                <FontAwesome
+                  name="google"
+                  size={22}
+                  color="black"
+                  style={{ margin: 10 }}
+                />
               </Pressable>
             ) : (
               <Pressable
                 onPress={handlePress}
-                style={{
-                  height: 70,
-                  width: "80%",
-                  paddingVertical: 10,
-                  paddingHorizontal: 32,
-                  borderRadius: 20,
-                  elevation: 3,
-                  backgroundColor: "black",
-                  justifyContent: "center",
-                }}
+                className=" h-20 w-[80%] bg-black shadow-sm drop-shadow-md rounded-3xl py-3 px-8 items-center justify-center transition"
               >
                 <H3 color="white">Login</H3>
               </Pressable>
