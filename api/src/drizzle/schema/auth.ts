@@ -8,7 +8,11 @@ const pool = new pg.Pool();
 const db = drizzle(pool);
 
 export const userTable = pgTable("user", {
-	id: text("id").primaryKey()
+	id: text("id").primaryKey(),
+  // other user attributes
+  name: text("name").notNull(),
+  email: text("email"),
+  picture: text("picture").notNull()
 });
 
 export const sessionTable = pgTable("session", {
