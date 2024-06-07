@@ -26,18 +26,18 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView
-      className=" flex-1 bg-white"
+      className="flex-1 bg-white"
       edges={["right", "bottom", "left"]}
     >
-      <View className="flex-1 bg-lime-400 items-center content-end self-stretch">
-        <View className=" mt-auto">
+      <View className="flex-1 content-end items-center self-stretch bg-lime-400">
+        <View className="mt-auto">
           <Image
             source={require("@/assets/images/coriander.png")}
-            className=" h-[100px] w-[100px] mb-4"
+            className="mb-4 h-[100px] w-[100px]"
           />
         </View>
         <Animated.View
-          className=" w-full bg-white rounded-t-3xl"
+          className="w-full rounded-t-3xl bg-white"
           style={{
             height,
           }}
@@ -56,7 +56,7 @@ export default function LoginScreen() {
             {expanded ? (
               <Pressable
                 onPress={handleLoginWithGoogle}
-                className=" h-20 w-20 bg-slate-100 shadow-sm drop-shadow-md rounded-3xl px-3 py-3 items-center justify-center transition"
+                className="h-20 w-20 items-center justify-center rounded-3xl bg-slate-100 px-3 py-3 shadow-sm drop-shadow-md transition"
               >
                 <FontAwesome
                   name="google"
@@ -68,7 +68,7 @@ export default function LoginScreen() {
             ) : (
               <Pressable
                 onPress={handlePress}
-                className=" h-20 w-[80%] bg-black shadow-sm drop-shadow-md rounded-3xl py-3 px-8 items-center justify-center transition"
+                className="h-20 w-[80%] items-center justify-center rounded-3xl bg-black px-8 py-3 shadow-sm drop-shadow-md transition"
               >
                 <H3 color="white">Login</H3>
               </Pressable>
