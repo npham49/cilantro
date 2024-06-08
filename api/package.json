@@ -6,17 +6,20 @@
   "scripts": {
     "build": "npx tsc",
     "start": "node dist/index.js",
-    "dev": "nodemon src/index.ts"
+    "dev": "npx tsx watch src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@lucia-auth/adapter-drizzle": "^1.0.7",
+    "arctic": "^1.9.0",
     "dotenv": "^16.4.5",
     "drizzle-orm": "^0.31.0",
     "express": "^4.19.2",
     "lucia": "^3.2.0",
-    "pg": "^8.11.5"
+    "oslo": "^1.2.0",
+    "pg": "^8.11.5",
+    "tsx": "^4.14.0"
   },
   "devDependencies": {
     "@types/express": "^4.17.21",
