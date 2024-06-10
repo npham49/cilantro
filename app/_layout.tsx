@@ -10,6 +10,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 import { useColorScheme } from "react-native";
 import { TamaguiProvider } from "tamagui";
+import { AuthProvider } from "@/lib/auth/authProvider";
 
 import { tamaguiConfig } from "../tamagui.config";
 
@@ -38,11 +39,21 @@ export default function RootLayout() {
       defaultTheme={colorScheme || "light"}
     >
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="login/index" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
+        <AuthProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen name="login/index" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+            <Stack.Screen
+              name="account"
+              options={{
+                // Set the presentation mode to modal for our modal route.
+                headerTitle: "Account Information",
+                presentation: "modal",
+              }}
+            />
+          </Stack>
+        </AuthProvider>
       </ThemeProvider>
     </TamaguiProvider>
   );

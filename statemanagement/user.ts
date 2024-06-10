@@ -1,8 +1,10 @@
 import { create } from "zustand";
 
-type User = {
+export type User = {
   name: string;
   id: string;
+  email: string;
+  picture: string;
 };
 type Action = {
   update: (user: User) => void;
@@ -11,6 +13,8 @@ type Action = {
 const useUserStore = create<User & Action>((set) => ({
   name: "",
   id: "",
+  email: "",
+  picture: "",
   update: (user) => set(user),
 }));
 

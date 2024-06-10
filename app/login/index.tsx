@@ -6,10 +6,13 @@ import { View, Image, Pressable } from "react-native";
 import { H2, H3 } from "tamagui";
 import { useRouter } from "expo-router";
 import { useUserStore } from "@/statemanagement/user";
+import { signInWithGoogle } from "@/lib/auth/authProvider";
+import { useAuthStore } from "@/statemanagement/auth";
 
 export default function LoginScreen() {
   const [expanded, setExpanded] = useState(false);
-  const user = useUserStore((state) => state);
+  const userStore = useUserStore((state) => state);
+  const authStore = useAuthStore((state) => state);
   const router = useRouter();
   const height = useSharedValue(150);
 
@@ -19,9 +22,25 @@ export default function LoginScreen() {
   };
 
   const handleLoginWithGoogle = () => {
-    user.update({ name: "John Doe", id: "123" });
+    // user.update({ name: "John Doe", id: "123", email: "", picture: ""});
     // Implement Google login here
-    router.replace("/");
+    signInWithGoogle({}).then((res)=> {
+      if (!res) {
+        return;
+      }
+      authStore.update({ ...authStore, sessionToken: res.sessionToken });
+      res.user &&
+      userStore.update({
+        ...userStore,
+        name: res.user.name,
+        id: res.user.id,
+        email: res.user.email,
+        picture: res.user.picture,
+      });
+      if (res.user) {
+        router.navigate("(tabs)");
+      }
+    });
   };
 
   return (

@@ -1,5 +1,5 @@
 import express from "express";
-import { googleAuth, lucia } from "../auth/auth";
+import { googleAuth, lucia } from "../auth";
 import { parseCookies, serializeCookie } from "oslo/cookie";
 import {
   OAuth2RequestError,
@@ -11,43 +11,56 @@ import * as userServices from "../services/user.service";
 
 export const googleLoginRouter = express.Router();
 
-googleLoginRouter.get("/api/login/google/", async (_, res) => {
+googleLoginRouter.get("/api/login/google", async (req, res) => {
+  const redirect = req.query.redirect?.toString() ?? "/";
   const state = generateState();
   const codeVerifier = generateCodeVerifier();
   const url = await googleAuth.createAuthorizationURL(state, codeVerifier, {
     scopes: ["profile", "email"],
   });
   res
-    .appendHeader(
-      "Set-Cookie",
-      serializeCookie("google_auth_state", state, {
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        maxAge: 60 * 10,
-        sameSite: "lax",
-      }),
-    )
-    .appendHeader(
-      "Set-Cookie",
-      serializeCookie("code_verifier", codeVerifier, {
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-        httpOnly: true,
-        maxAge: 60 * 10,
-        sameSite: "lax",
-      }),
-    )
-    .redirect(url.toString());
+  .appendHeader(
+    "Set-Cookie",
+    serializeCookie("google_auth_state", state, {
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 60 * 10,
+      sameSite: "lax",
+    }),
+  )
+  .appendHeader(
+    "Set-Cookie",
+    serializeCookie("code_verifier", codeVerifier, {
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 60 * 10,
+      sameSite: "lax",
+    }),
+  )
+  .appendHeader(
+    "Set-Cookie",
+    serializeCookie("redirect", redirect, {
+      path: "/",
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      maxAge: 60 * 10,
+      sameSite: "lax",
+    }),
+  )
+  .redirect(url.toString());
 });
 
 googleLoginRouter.get("/api/auth/google/callback", async (req, res) => {
   const code = req.query.code?.toString() ?? null;
   const state = req.query.state?.toString() ?? null;
   const storedState =
-    parseCookies(req.headers.cookie ?? "").get("google_auth_state") ?? null;
+  parseCookies(req.headers.cookie ?? "").get("google_auth_state") ?? null;
   const codeVerifier =
-    parseCookies(req.headers.cookie ?? "").get("code_verifier") ?? null;
+  parseCookies(req.headers.cookie ?? "").get("code_verifier") ?? null;
+  const redirect =
+  parseCookies(req.headers.cookie ?? "").get("redirect") ?? "/";
   if (
     !code ||
     !state ||
@@ -56,7 +69,7 @@ googleLoginRouter.get("/api/auth/google/callback", async (req, res) => {
     state !== storedState
   ) {
     console.log(code, state, storedState);
-    res.status(400).end();
+    res.status(400);
     return;
   }
   try {
@@ -78,13 +91,14 @@ googleLoginRouter.get("/api/auth/google/callback", async (req, res) => {
     if (existingUser) {
       const session = await lucia.createSession(existingUser.id, {});
       console.log("-> Created Session", session);
+      const redirectUrl = new URL(redirect);
+      redirectUrl.searchParams.append("token", session.id);
       return (
         res
-          // 	.appendHeader("Set-Cookie", lucia.createSessionCookie(session.id).serialize())
-          .redirect(`${process.env.HOST_NAME}/?session_token=${session.id}`)
+        .redirect(redirectUrl.toString())
       );
     }
-
+    
     const newUser = await userServices.createUser(
       user.sub,
       user.name,
@@ -93,14 +107,15 @@ googleLoginRouter.get("/api/auth/google/callback", async (req, res) => {
     );
     console.log("-> Created New User", newUser);
     if (!newUser) {
-      res.status(500).end();
+      res.status(500);
       return;
     }
     const session = await lucia.createSession(newUser[0].id, {});
+    const redirectUrl = new URL(redirect);
+    redirectUrl.searchParams.append("token", session.id);
     return (
       res
-        // 	.appendHeader("Set-Cookie", lucia.createSessionCookie(session.id).serialize())
-        .redirect(`${process.env.HOST_NAME}/?session_token=${session.id}`)
+      .redirect(redirectUrl.toString())
     );
   } catch (e) {
     if (
@@ -108,11 +123,11 @@ googleLoginRouter.get("/api/auth/google/callback", async (req, res) => {
       e.message === "bad_verification_code"
     ) {
       // invalid code
-      res.status(400).end();
+      res.status(400);
       return;
     }
     console.error(e);
-    res.status(500).end();
+    res.status(500);
     return;
   }
 });
@@ -120,12 +135,14 @@ googleLoginRouter.get("/api/auth/google/callback", async (req, res) => {
 googleLoginRouter.post("/api/logout", async (req, res) => {
   // Extract token from Barer Token
   let token = req.headers.authorization;
-  if (!token || !token.startsWith("Bearer") || !token.split(" ")[1]) {
-    return res.status(400).end();
+  const sessionId = lucia.readBearerToken(token ?? "");
+  if (!sessionId) {
+    console.log("-> No Session ID");
+    return res.status(401);
   }
-  token = token.split(" ")[1];
-  const session = await lucia.validateSession(token);
-  if (!session || !session.session) return res.status(401).end();
-  await lucia.invalidateSession(session.session?.id);
-  return res.status(200).end();
+  const { session } = await lucia.validateSession(sessionId);
+  if (!session) return res.status(401);
+  await lucia.invalidateSession(session?.id);
+  console.log("-> Invalidated Session", session?.id);
+  return res.status(200).json({ message: "Logged out" });
 });
