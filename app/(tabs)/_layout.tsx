@@ -1,6 +1,7 @@
 import { Link, Redirect, Tabs } from "expo-router";
 import React from "react";
 import { Image } from "expo-image";
+import { Text } from "react-native";
 
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { Colors } from "@/constants/Colors";
@@ -10,23 +11,17 @@ import { useUserStore } from "@/statemanagement/user";
 export default function TabLayout() {
   const user = useUserStore((state) => state);
   const colorScheme = useColorScheme();
-
+ 
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         headerShown: true,
-        // headerLeft: () => <Image source={user.picture} />,
         headerLeft: () => (
           <Link href="/account" className="ml-1">
             <Image
               source={{ uri: user.picture }}
-              className="h-10 w-10 rounded-full"
-              // style={{
-              //   width: 30,
-              //   height: 30,
-              //   borderRadius: 15,
-              // }}
+              className="h-8 w-8 rounded-full"
             />
           </Link>
         ),
@@ -35,7 +30,8 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: new Date().toLocaleString('en-us',{day: "numeric",month:'short', year:'numeric'}),
+          tabBarLabel: "Home",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
               name={focused ? "home" : "home-outline"}
@@ -45,12 +41,36 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="accounts"
         options={{
-          title: "Explore",
+          title: "Accounts",
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon
-              name={focused ? "code-slash" : "code-slash-outline"}
+              name={focused ? "wallet" : "wallet-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="budgets"
+        options={{
+          title: "Budgets",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "briefcase" : "briefcase-outline"}
+              color={color}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="transactions"
+        options={{
+          title: "Transactions",
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon
+              name={focused ? "bar-chart" : "bar-chart-outline"}
               color={color}
             />
           ),
