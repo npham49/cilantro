@@ -12,18 +12,38 @@ accountRouter.get("/api/accounts", async (req: Request, res: Response) => {
     let token = req.headers.authorization;
     const sessionId = lucia.readBearerToken(token ?? "");
     if (!sessionId) {
-      return res.status(401).end();
+      return res.status(401).send({ error: "Unauthorized" }).end();
     }
     const { session, user } = await lucia.validateSession(sessionId);
     if (!session || !user) {
-      return res.status(401).end();
+      return res.status(401).send({ error: "Unauthorized" }).end();
     }
 
     const response = await accountServices.getAccountsByUserId(user.id);
     return res.status(200).json(response);
   } catch (error) {
     console.error(error);
-    return res.status(500).end();
+    return res.status(500).end({ error: "Internal Server Error" });
+  }
+});
+
+accountRouter.get("/api/accounts/:id", async (req: Request, res: Response) => {
+  try {
+    let token = req.headers.authorization;
+    const sessionId = lucia.readBearerToken(token ?? "");
+    if (!sessionId) {
+      return res.status(401).send({ error: "Unauthorized" }).end();
+    }
+    const { session, user } = await lucia.validateSession(sessionId);
+    if (!session || !user) {
+      return res.status(401).send({ error: "Unauthorized" }).end();
+    }
+
+    const response = await accountServices.getAccountById(req.params.id, user.id);
+    return res.status(200).json(response);
+  } catch (error) {
+    console.error(error);
+    return res.status(500).end({ error: "Internal Server Error" });
   }
 });
 
@@ -32,7 +52,7 @@ accountRouter.post("/api/accounts", async (req: Request, res: Response) => {
     let token = req.headers.authorization;
     const sessionId = lucia.readBearerToken(token ?? "");
     if (!sessionId) {
-      return res.status(401).end({ error: "Unauthorized" });
+      return res.status(401).send({ error: "Unauthorized" }).end();
     }
     const { session, user } = await lucia.validateSession(sessionId);
     if (!session || !user) {
