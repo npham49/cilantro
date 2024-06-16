@@ -1,0 +1,1 @@
+export const transactionType = ["Income", "Expense"];

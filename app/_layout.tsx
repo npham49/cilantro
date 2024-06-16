@@ -48,7 +48,7 @@ export default function RootLayout() {
               name="account"
               options={{
                 // Set the presentation mode to modal for our modal route.
-                headerTitle: "Account Information",
+                headerTitle: "Account",
                 presentation: "modal",
               }}
             />
